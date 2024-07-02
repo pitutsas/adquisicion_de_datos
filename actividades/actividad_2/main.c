@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
-#include "lcd_i2c.h"
+#include "lcd.h"
 #include "bmp280.h"
 
 /*
@@ -12,10 +12,21 @@ int main() {
     // Habilito USB
     stdio_init_all();
 
+    // Inicializacion de I2C
+    //RP2040 - 1MHz
+    //BMP280 - 3.4MHz
+    //PCF - 100kHz
+    i2c_init(i2c0,100*1000);
+    // Elijo GPIO de entrada & pull up
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+
+    gpio_pull_up(4);
+    gpio_pull_up(5);
     // Inicializacion del LCD
-    lcd_init();
+    lcd_init(i2c0, 0x27);
     // Inicializo BMP280
-    bmp280_init();
+    bmp280_init(i2c0);
 
     // Obtengo parametros de compensacion
     struct bmp280_calib_param params;
